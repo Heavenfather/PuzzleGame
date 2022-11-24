@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LitJson;
 
 public class LevelMgr
 {
@@ -13,55 +14,37 @@ public class LevelMgr
         return _instance;
     }
 
+    public ChallengeMode CurChallengeMode;
+
+    private Dictionary<string, LevelData> _levelDatas = new Dictionary<string, LevelData>();
+
+    public void InitConfig()
+    {
+        string path = "Levels/LevelConfig";
+        string levelJson = Resources.Load<TextAsset>(path).text;
+        _levelDatas = JsonMapper.ToObject<Dictionary<string, LevelData>>(levelJson);
+    }
+
     public Vector2 GetGridCount(int level)
     {
         Vector2 grid = Vector2.one;
-        switch (level)
-        {
-            case 0:
-                grid.x = 3;
-                grid.y = 3;
-                break;
-            case 1:
-                grid.x = 3;
-                grid.y = 4;
-                break;
-            case 2:
-            case 3:
-                grid.x = 4;
-                grid.y = 4;
-                break;
-            case 4:
-            case 5:
-                grid.x = 4;
-                grid.y = 5;
-                break;
-            case 6:
-            case 7:
-                grid.x = 5;
-                grid.y = 5;
-                break;
-            case 8:
-            case 9:
-                grid.x = 6;
-                grid.y = 5;
-                break;
-            case 10:
-                grid.x = 6;
-                grid.y = 6;
-                break;
-            case 11:
-            case 12:
-                grid.x = 6;
-                grid.y = 7;
-                break;
-            case 13:
-            case 14:
-                grid.x = 7;
-                grid.y = 7;
-                break;
-        }
+        LevelData data = _levelDatas[level.ToString()];
+        grid.x = data.col;
+        grid.y = data.row;
         return grid;
+    }
+
+    public int GetLevelCount()
+    {
+        return _levelDatas.Count;
+    }
+
+    public int GetLimitTime(int level)
+    {
+        int time = 0;
+        LevelData data = _levelDatas[level.ToString()];
+        time = data.limitTime;
+        return time;
     }
 
     public Sprite[] GetSprites(int level)
@@ -70,10 +53,46 @@ public class LevelMgr
         return sprites;
     }
 
-    public Texture2D GetLevelTexture(int level)
+    public Texture2D GetTexture(int level)
     {
-        Texture2D texture = Resources.Load<Texture2D>("Levels/" + level);
+        Texture2D texture = Resources.Load<Texture2D>("Levels/" + level + "/" + level);
         return texture;
     }
 
+    public List<Texture2D> GetAllLevelTexture()
+    {
+        List<Texture2D> l = new List<Texture2D>();
+
+        int count = _levelDatas.Count;
+        for (int i = 0; i < count; i++)
+        {
+            l.Add(GetTexture(i));
+        }
+
+        return l;
+    }
+
+    public bool IsCanChallenge(int level)
+    {
+        if (level == 0)
+            return true;
+        CacheData data = CacheMgr.GetInstance().GetCache(level - 1);
+        if (data != null && data.pass)
+            return true;
+        return false; ;
+    }
+
+}
+
+public class LevelData
+{
+    public int col;
+    public int row;
+    public int limitTime;
+}
+
+public enum ChallengeMode
+{
+    Time,
+    Challenge
 }

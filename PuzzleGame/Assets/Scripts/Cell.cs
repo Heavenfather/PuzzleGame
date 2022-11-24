@@ -9,8 +9,11 @@ public class Cell : MonoBehaviour
     Image img;
     [SerializeField]
     Button btn;
+    [SerializeField]
+    GameObject selectGo;
 
     private CellData data;
+    private string curPos;
     private GameUI gameUI;
 
     void Start()
@@ -23,20 +26,36 @@ public class Cell : MonoBehaviour
         gameUI.OnCellClick(this);
     }
 
-    public void SetCell(CellData data,GameUI parent)
+    public void SetCell(CellData data, GameUI parent)
     {
-        img.sprite = data.sprite;
+        this.data = data;
+        SetSprite(data.sprite);
         gameUI = parent;
     }
 
-    public void SetCellPos(Vector2 pos)
+    public void SetSprite(Sprite sp)
     {
-        data.pos = pos;
+        img.sprite = sp;
+    }
+    
+    public Sprite GetSprite()
+    {
+        return img.sprite;
+    }
+
+    public void SetSelect(bool b)
+    {
+        selectGo.SetActive(b);
+    }
+
+
+    public bool IsCorrect()
+    {
+        return img.sprite.name == data.pos;
     }
 
     public CellData GetData()
     {
         return data;
     }
-
 }

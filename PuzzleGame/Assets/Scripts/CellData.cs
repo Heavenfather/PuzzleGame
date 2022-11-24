@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class CellData
 {
+    public int id;
     public Sprite sprite;
-    public Vector2 pos;
+    //存的是正确的坐标
+    public string pos;
+
+    public void SetPos(int level, int index)
+    {
+        this.pos = level + "_" + index;
+    }
 }
